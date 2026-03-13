@@ -16,16 +16,24 @@ const navItems = [
 export default function Sidebar() {
   const pathname = usePathname();
   const [toggles, setToggles] = useState({ email: false, sms: false, push: true });
+  const [collapsed, setCollapsed] = useState(false);
 
   const toggle = (key: 'email' | 'sms' | 'push') => {
     setToggles(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${collapsed ? 'sidebar-collapsed' : ''}`}>
       <div className="sidebar-logo">
-        <div className="logo-icon">🚨</div>
-        <div className="logo-text">Supply Chain<br />Disruption EWS</div>
+        <div className="logo-icon sidebar-hide-collapsed">🚨</div>
+        <div className="logo-text sidebar-hide-collapsed">Supply Chain<br />Disruption EWS</div>
+        <button
+          className="sidebar-toggle-btn"
+          onClick={() => setCollapsed(c => !c)}
+          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          {collapsed ? '▶' : '◀'}
+        </button>
       </div>
 
       <nav className="sidebar-nav">
@@ -34,9 +42,10 @@ export default function Sidebar() {
             key={item.href}
             href={item.href}
             className={`nav-item ${pathname === item.href ? 'active' : ''}`}
+            title={collapsed ? item.label : undefined}
           >
             <span className="nav-icon">{item.icon}</span>
-            {item.label}
+            <span className="sidebar-hide-collapsed">{item.label}</span>
           </Link>
         ))}
 
@@ -45,31 +54,35 @@ export default function Sidebar() {
         <Link
           href="/notifications"
           className={`nav-item ${pathname === '/notifications' ? 'active' : ''}`}
+          title={collapsed ? 'Notification Center' : undefined}
         >
           <span className="nav-icon">🔔</span>
-          Notification Center
-          <span className="pulse-dot" style={{ marginLeft: 'auto' }} />
+          <span className="sidebar-hide-collapsed">Notification Center</span>
+          <span className="pulse-dot sidebar-hide-collapsed" style={{ marginLeft: 'auto' }} />
         </Link>
 
-        <div className="sidebar-section-label">Notifications</div>
-        {(['email', 'sms', 'push'] as const).map(key => (
-          <div key={key} className="toggle-row">
-            <span>{key.charAt(0).toUpperCase() + key.slice(1)}</span>
-            <button
-              className={`toggle-switch ${toggles[key] ? 'active' : ''}`}
-              onClick={() => toggle(key)}
-            />
-          </div>
-        ))}
+        <div className="sidebar-hide-collapsed">
+          <div className="sidebar-section-label">Notifications</div>
+          {(['email', 'sms', 'push'] as const).map(key => (
+            <div key={key} className="toggle-row">
+              <span>{key.charAt(0).toUpperCase() + key.slice(1)}</span>
+              <button
+                className={`toggle-switch ${toggles[key] ? 'active' : ''}`}
+                onClick={() => toggle(key)}
+              />
+            </div>
+          ))}
+        </div>
 
         <div className="nav-divider" />
 
         <Link
           href="/maintenance"
           className={`nav-item ${pathname === '/maintenance' ? 'active' : ''}`}
+          title={collapsed ? 'Model Performance Logs' : undefined}
         >
           <span className="nav-icon">📉</span>
-          Model Performance Logs
+          <span className="sidebar-hide-collapsed">Model Performance Logs</span>
         </Link>
       </nav>
     </aside>

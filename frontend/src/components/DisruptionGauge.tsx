@@ -63,7 +63,7 @@ export default function DisruptionGauge({ score = 0 }: DisruptionGaugeProps) {
   const needleY = cy + needleLen * Math.sin(needleAngle);
 
   return (
-    <div className="card widget-third">
+    <div className="card">
       <div className="card-header">
         <span className="card-title">🎯 Disruption Index</span>
         <span className="pulse-dot" style={{ opacity: animatedScore >= 80 ? 1 : 0 }} />

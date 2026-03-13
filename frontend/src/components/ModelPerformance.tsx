@@ -27,7 +27,7 @@ export default function ModelPerformance({ history = [] }: ModelPerformanceProps
     }));
 
   return (
-    <div className="card widget-half">
+    <div className="card widget-full">
       <div className="card-header">
         <span className="card-title">📉 Model Performance Logs</span>
         <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Last 14 days</span>

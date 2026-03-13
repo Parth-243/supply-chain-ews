@@ -20,7 +20,7 @@ interface CriticalAlertsProps {
 
 export default function CriticalAlerts({ alerts = [], onAction }: CriticalAlertsProps) {
   return (
-    <div className="card widget-third">
+    <div className="card">
       <div className="card-header">
         <span className="card-title">
           🚨 Active Critical Alerts

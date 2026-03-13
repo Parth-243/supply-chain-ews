@@ -15,7 +15,7 @@ export default function SystemHealth({ apiLatency = 0, ingestionRate = 0, mlStat
   };
 
   return (
-    <div className="card widget-half">
+    <div className="card">
       <div className="card-header">
         <span className="card-title">💓 System Health Logs</span>
         <span style={{

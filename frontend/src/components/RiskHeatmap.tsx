@@ -27,7 +27,7 @@ export default function RiskHeatmap({ data = [] }: RiskHeatmapProps) {
   const memoData = useMemo(() => data, [data]);
 
   return (
-    <div className="card widget-wide">
+    <div className="card">
       <div className="card-header">
         <span className="card-title">🗺️ Interactive Global Risk Heatmap</span>
         <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{data.length} locations</span>

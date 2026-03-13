@@ -7,7 +7,7 @@ import PredictiveConfidence from '@/components/PredictiveConfidence';
 import RiskHeatmap from '@/components/RiskHeatmap';
 import SentimentFeed from '@/components/SentimentFeed';
 import SystemHealth from '@/components/SystemHealth';
-import ModelPerformance from '@/components/ModelPerformance';
+import MitigationSuggestions from '@/components/MitigationSuggestions';
 import { api } from '@/lib/api';
 
 // Fallback demo data when backend is not connected
@@ -52,12 +52,6 @@ const DEMO_DATA = {
     { lat: 37.95, lng: 23.64, name: 'Piraeus', avgRisk: 52, intensity: 0.52, count: 2 },
     { lat: 6.95, lng: 79.84, name: 'Colombo', avgRisk: 40, intensity: 0.40, count: 3 },
   ],
-  modelPerformance: {
-    history: Array.from({ length: 14 }, (_, i) => ({
-      evaluatedAt: new Date(Date.now() - i * 86400000).toISOString(),
-      metrics: { mae: 3 + Math.random() * 5, f1Score: 0.75 + Math.random() * 0.2, accuracy: 0.82 + Math.random() * 0.1 }
-    }))
-  },
   systemHealth: { apiLatency: 45.2, uptime: 86400 },
   mlServiceStatus: 'connected'
 };
@@ -75,11 +69,9 @@ export default function DashboardPage() {
       setData({
         ...dashboardRes,
         heatmapData: heatmapRes,
-        modelPerformance: dashboardRes.modelPerformance ? { history: [dashboardRes.modelPerformance] } : DEMO_DATA.modelPerformance,
         mlServiceStatus: dashboardRes.systemHealth?.mlServiceStatus || 'unknown'
       });
     } catch {
-      // Use demo data if backend not available
       console.log('Using demo data — backend not connected');
     } finally {
       setLoading(false);
@@ -88,7 +80,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchDashboard();
-    const interval = setInterval(fetchDashboard, 60000); // Poll every 60s
+    const interval = setInterval(fetchDashboard, 60000);
     return () => clearInterval(interval);
   }, [fetchDashboard]);
 
@@ -97,7 +89,6 @@ export default function DashboardPage() {
       await api.alertAction(alertId, action);
       fetchDashboard();
     } catch {
-      // Update locally if backend unavailable
       setData(prev => ({
         ...prev,
         activeAlerts: {
@@ -110,29 +101,32 @@ export default function DashboardPage() {
   };
 
   return (
-    <div style={{ opacity: loading ? 0.7 : 1, transition: 'opacity 0.3s' }}>
-      {/* Row 1: Gauge + Alerts + Confidence */}
-      <div className="dashboard-grid">
-        <DisruptionGauge score={data.disruptionIndex} />
-        <CriticalAlerts alerts={data.activeAlerts?.items || []} onAction={handleAlertAction} />
-        <PredictiveConfidence confidence={data.predictiveConfidence} />
+    <div className="dashboard-body" style={{ opacity: loading ? 0.7 : 1, transition: 'opacity 0.3s' }}>
+      {/* ===== LEFT: Main Column ===== */}
+      <div className="dashboard-main">
+        {/* Top Row: 3-column grid */}
+        <div className="top-row">
+          <DisruptionGauge score={data.disruptionIndex} />
+          <CriticalAlerts alerts={data.activeAlerts?.items || []} onAction={handleAlertAction} />
+          <PredictiveConfidence confidence={data.predictiveConfidence} />
+        </div>
+
+        {/* Central Feature: Heatmap */}
+        <div className="map-area">
+          <RiskHeatmap data={data.heatmapData || []} />
+        </div>
       </div>
 
-      {/* Row 2: Heatmap + Sentiment Feed */}
-      <div className="dashboard-grid" style={{ marginTop: 20 }}>
-        <RiskHeatmap data={data.heatmapData || []} />
+      {/* ===== RIGHT: Sidebar Column ===== */}
+      <div className="dashboard-aside">
         <SentimentFeed articles={data.sentimentFeed || []} />
-      </div>
-
-      {/* Row 3: System Health + Model Performance */}
-      <div className="dashboard-grid" style={{ marginTop: 20 }}>
+        <MitigationSuggestions alerts={data.activeAlerts?.items || []} onAction={handleAlertAction} />
         <SystemHealth
           apiLatency={data.systemHealth?.apiLatency || 0}
           ingestionRate={35}
           mlStatus={data.mlServiceStatus || 'disconnected'}
           uptime={data.systemHealth?.uptime || 0}
         />
-        <ModelPerformance history={data.modelPerformance?.history || []} />
       </div>
     </div>
   );

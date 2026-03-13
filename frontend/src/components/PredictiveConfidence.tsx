@@ -18,7 +18,7 @@ export default function PredictiveConfidence({ confidence = 50 }: PredictiveConf
   const color = getColor(confidence);
 
   return (
-    <div className="card widget-third">
+    <div className="card">
       <div className="card-header">
         <span className="card-title">🎯 Predictive Confidence</span>
       </div>

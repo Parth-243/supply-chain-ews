@@ -20,12 +20,12 @@ export default function SentimentFeed({ articles = [] }: SentimentFeedProps) {
   };
 
   return (
-    <div className="card widget-wide">
+    <div className="card">
       <div className="card-header">
         <span className="card-title">📰 Geopolitical Sentiment Feed (NLP)</span>
-        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{articles.length} articles</span>
+        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>⋯</span>
       </div>
-      <div className="card-body" style={{ padding: 0, maxHeight: 360, overflowY: 'auto' }}>
+      <div className="card-body" style={{ padding: 0, maxHeight: 320, overflowY: 'auto' }}>
         <table className="data-table">
           <thead>
             <tr>
@@ -39,13 +39,13 @@ export default function SentimentFeed({ articles = [] }: SentimentFeedProps) {
             {articles.slice(0, 15).map((article, i) => (
               <tr key={i}>
                 <td style={{ whiteSpace: 'nowrap', fontSize: 11 }}>{formatTime(article.publishedAt)}</td>
-                <td style={{ maxWidth: 400 }}>
-                  <span style={{ fontSize: 13, color: 'var(--text-primary)' }}>{article.headline}</span>
+                <td>
+                  <span style={{ fontSize: 12, color: 'var(--text-primary)' }}>{article.headline}</span>
                   <br />
                   <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{article.source}</span>
                 </td>
                 <td>
-                  {article.entities?.slice(0, 3).map((e, j) => (
+                  {article.entities?.slice(0, 2).map((e, j) => (
                     <span key={j} className="entity-tag">{e.text}</span>
                   ))}
                 </td>

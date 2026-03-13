@@ -31,6 +31,7 @@ export default function Header() {
       </div>
 
       <div className="header-center">
+        <span className="header-label" style={{ fontSize: 12, color: 'var(--text-muted)', marginRight: 8 }}>Dashboard View</span>
         <button
           className={`view-btn ${activeView === 'dashboard' ? 'active' : ''}`}
           onClick={() => setActiveView('dashboard')}
@@ -55,8 +56,15 @@ export default function Header() {
       </div>
 
       <div className="header-right">
-        <span>🕐 {time}</span>
-        <button className="view-btn" title="More options">⋯</button>
+        <button className="view-btn" title="Notifications">🔔</button>
+        <span className="header-datetime">🕐 {time}</span>
+        <div className="header-avatar" title="User Profile">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <circle cx="14" cy="14" r="13" stroke="var(--border-color)" strokeWidth="1.5" fill="var(--bg-card)" />
+            <circle cx="14" cy="11" r="4" fill="var(--text-muted)" />
+            <path d="M6 24c0-4.4 3.6-8 8-8s8 3.6 8 8" fill="var(--text-muted)" />
+          </svg>
+        </div>
       </div>
     </header>
   );
