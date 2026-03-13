@@ -11,7 +11,7 @@
 
 ## 🏗️ Architecture
 
-![System Architecture - Supply Chain Disruption Early Warning System](./architecture.png)
+![System Architecture - Supply Chain Disruption Early Warning System](./architecture.png.png)
 
 ## 📁 Project Structure
 
