@@ -98,11 +98,11 @@ Create `.env` files in each service directory. See `.env.example` files for refe
 
 ## 👥 Team
 
-| Role | Responsibilities |
-|------|-----------------|
-| **Frontend Developer** | Dashboard UI, Leaflet maps, What-If interaction |
-| **Backend Developer** | REST APIs, MongoDB schemas, alert schedulers |
-| **ML Engineer** | Isolation Forest, NLP sentiment, risk score calibration |
+| Team Member | Role & Responsibilities |
+|-------------|-------------------------|
+| **Parth Shrivastava** | Frontend Developer (Dashboard UI, Leaflet maps, What-If interaction) |
+| **Parth Singh** | Backend & Data Processing (REST APIs, MongoDB schemas, alert schedulers) |
+| **Vedant Trivedi** | ML Engineer (ML Model, Isolation Forest, NLP sentiment, risk score) |
 
 ## 📄 License
 
