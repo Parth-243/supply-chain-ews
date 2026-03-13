@@ -11,21 +11,7 @@
 
 ## 🏗️ Architecture
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    Frontend (Next.js)                    │
-│   Dashboard │ Heatmap │ What-If │ Alerts │ Notifications │
-├─────────────────────────────────────────────────────────┤
-│                 Backend (Node.js/Express)                │
-│    REST APIs │ Alert Engine │ Mitigation │ Health Monitor │
-├─────────────────────────────────────────────────────────┤
-│              ML Service (Python/FastAPI)                 │
-│  Isolation Forest │ VADER NLP │ Risk Scorer │ What-If    │
-├─────────────────────────────────────────────────────────┤
-│                   MongoDB Database                       │
-│  shipments │ alerts │ news_articles │ risk_scores        │
-└─────────────────────────────────────────────────────────┘
-```
+![System Architecture - Supply Chain Disruption Early Warning System](./architecture.png)
 
 ## 📁 Project Structure
 
