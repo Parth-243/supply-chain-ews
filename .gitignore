@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+
+# Environment
+.env
+.env.local
+.env.production
+.env.staging
+
+# Build output
+frontend/.next/
+frontend/out/
+backend/dist/
+ml-service/__pycache__/
+ml-service/*.pkl
+ml-service/*.joblib
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+npm-debug.log*
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Misc
+*.drawio.png
+*.pdf
+*.pptx
