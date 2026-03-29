@@ -43,3 +43,10 @@ coverage/
 *.drawio.png
 *.pdf
 *.pptx
+
+# Docker
+.dockerignore
+
+# ML saved models directory (generated at runtime)
+ml-service/saved_models/
+
