@@ -5,6 +5,8 @@ __pycache__/
 .venv/
 venv/
 env/
+myvenv/
+venv_311/
 
 # Environment
 .env
