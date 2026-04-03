@@ -536,4 +536,23 @@ html, body {
 .page-content > div {
   animation: slideUp 0.28s cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
-
+.slider-container .slider-tooltip {
+  opacity: 0;
+  transition: opacity 0.2s;
+  position: absolute;
+  top: -28px;
+  transform: translateX(-50%);
+  background: var(--accent-cyan);
+  color: #000;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  z-index: 10;
+}
+.slider-container:hover .slider-tooltip,
+.simulator-slider:active + .slider-tooltip {
+  opacity: 1;
+}
