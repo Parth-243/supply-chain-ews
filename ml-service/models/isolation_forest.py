@@ -20,7 +20,7 @@ class AnomalyDetector:
         if os.path.exists(self.model_path):
             try:
                 self.model = joblib.load(self.model_path)
-                print("✅ Loaded saved Isolation Forest model")
+                print("[OK] Loaded saved Isolation Forest model")
                 return
             except Exception:
                 pass
@@ -69,7 +69,7 @@ class AnomalyDetector:
         # Save model
         os.makedirs(os.path.dirname(self.model_path), exist_ok=True)
         joblib.dump(self.model, self.model_path)
-        print("✅ Trained and saved new Isolation Forest model")
+        print("[OK] Trained and saved new Isolation Forest model")
 
     def predict(self, features: dict) -> dict:
         """
