@@ -9,6 +9,8 @@ const { fetchAndStoreNews }     = require('./services/newsFetcher');
 const { fetchAllPortWeather }   = require('./services/weatherFetcher');
 const { fetchAllPortCongestion }= require('./services/portCongestionFetcher');
 const { fetchGdeltAlerts }      = require('./services/gdeltFetcher');
+const { enrichAllShipments }     = require('./services/shipmentEnricher');
+const { autoResolveStaleAlerts } = require('./services/alertGenerator');
 
 const app = express();
 
@@ -77,6 +79,11 @@ app.post('/api/live/fetch-alerts', async (req, res) => {
   res.json({ message: 'GDELT alerts processed', ...result });
 });
 
+app.post('/api/live/enrich-shipments', async (req, res) => {
+  const result = await enrichAllShipments();
+  res.json({ message: 'Shipments dynamic enrichment completed', ...result });
+});
+
 // ── Connect DB then start all cron jobs ──────────────────────────────────────
 connectDB().then(async () => {
 
@@ -85,7 +92,15 @@ connectDB().then(async () => {
 
   // Weather and port congestion — fully free, always run
   fetchAllPortWeather().then(r => { liveWeather = r; });
-  fetchAllPortCongestion().then(r => { liveCongestion = r; });
+  fetchAllPortCongestion().then(async (r) => { 
+    liveCongestion = r; 
+    // Trigger shipment enrichment once congestion is available on startup
+    try {
+      await enrichAllShipments();
+    } catch (e) {
+      console.error("❌ Shipment enrichment startup failed:", e.message);
+    }
+  });
 
   // GDELT geopolitical alerts — free, run on startup
   fetchGdeltAlerts();
@@ -121,6 +136,17 @@ connectDB().then(async () => {
   cron.schedule('0 */4 * * *', async () => {
     console.log('⏰ [CRON] GDELT alert fetch...');
     await fetchGdeltAlerts();
+  });
+
+  // ── Cron: Shipment enrichment & alert auto-resolve every 30 minutes
+  cron.schedule('*/30 * * * *', async () => {
+    console.log('⏰ [CRON] Running shipment enrichment & alert cleanup...');
+    try {
+      await enrichAllShipments();
+      await autoResolveStaleAlerts();
+    } catch (e) {
+      console.error("❌ Cron shipment enrichment failed:", e.message);
+    }
   });
 
 }).catch(err => console.error('❌ DB connection error:', err));

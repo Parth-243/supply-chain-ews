@@ -198,6 +198,19 @@ async function seedDatabase() {
     console.log(`✅ Seeded ${perfLogs.length} model performance logs`);
 
     console.log('\n🎉 Database seeding complete!');
+    
+    // Support immediate live enrichment if --live is specified
+    if (process.argv.includes('--live')) {
+      console.log('🔄 Immediately running real-time live data enrichment...');
+      try {
+        const { enrichAllShipments } = require('../services/shipmentEnricher');
+        await enrichAllShipments();
+        console.log('✅ Real-time live enrichment completed!');
+      } catch (enrichErr) {
+        console.error('❌ Live enrichment failed:', enrichErr.message);
+      }
+    }
+
     process.exit(0);
   } catch (error) {
     console.error('❌ Seeding error:', error);

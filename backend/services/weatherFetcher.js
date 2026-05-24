@@ -1,13 +1,11 @@
 /**
- * weatherFetcher.js — Live Weather Data from Open-Meteo
+ * weatherFetcher.js — Live Weather Data from WeatherAPI.com & Open-Meteo
  *
- * Open-Meteo is 100% free, no API key needed, no rate limits for non-commercial use.
- * https://open-meteo.com/
+ * Primary: WeatherAPI.com (highly reliable, requires API key, 1 million calls/month free)
+ * Fallback: Open-Meteo (100% free, no API key needed)
  *
  * Fetches current weather conditions at major global shipping ports and converts
  * them into a weather_severity score (0–1) that feeds into the ML risk model.
- *
- * Saves results to the WeatherEvent collection + can enrich Shipment riskFactors.
  */
 
 // Major shipping port coordinates
@@ -24,8 +22,7 @@ const PORTS = [
   { name: 'Port Said',        lat: 31.26,  lon: 32.28  },
 ];
 
-// WMO weather code → severity score + label
-// https://open-meteo.com/en/docs#weathervariables
+// Open-Meteo Weather Code Decoder
 function decodeWeatherCode(code) {
   if (code === 0)                        return { severity: 0.0, label: 'Clear' };
   if (code <= 3)                         return { severity: 0.1, label: 'Partly Cloudy' };
@@ -48,7 +45,72 @@ function windSeverity(windKmh) {
   return 0.35; // gale / storm force
 }
 
+/**
+ * Fetch current weather from WeatherAPI.com (Primary)
+ */
+async function fetchWeatherFromAPI(port, apiKey) {
+  const url = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${port.lat},${port.lon}`;
+  const res = await fetch(url, {
+    signal: AbortSignal.timeout(8000),
+  });
+  if (!res.ok) throw new Error(`WeatherAPI status ${res.status}`);
+  
+  const data = await res.json();
+  const current = data.current;
+  if (!current) throw new Error("Invalid response from WeatherAPI");
+
+  const conditionText = (current.condition?.text || '').toLowerCase();
+  
+  // Calculate severity based on description
+  let baseSeverity = 0.1;
+  if (conditionText.includes('storm') || conditionText.includes('typhoon') || conditionText.includes('hurricane') || conditionText.includes('thunder') || conditionText.includes('blizzard')) {
+    baseSeverity = 0.85;
+  } else if (conditionText.includes('heavy') || conditionText.includes('torrential') || conditionText.includes('gale')) {
+    baseSeverity = 0.65;
+  } else if (conditionText.includes('moderate') || conditionText.includes('rain') || conditionText.includes('snow') || conditionText.includes('shower')) {
+    baseSeverity = 0.45;
+  } else if (conditionText.includes('drizzle') || conditionText.includes('light') || conditionText.includes('patchy')) {
+    baseSeverity = 0.25;
+  } else if (conditionText.includes('fog') || conditionText.includes('mist') || conditionText.includes('haze') || conditionText.includes('overcast')) {
+    baseSeverity = 0.20;
+  } else if (conditionText.includes('sunny') || conditionText.includes('clear') || conditionText.includes('cloudy')) {
+    baseSeverity = 0.05;
+  }
+
+  // Adjust by wind speed (current.wind_kph is in km/h)
+  const severity = Math.min(1.0, baseSeverity + windSeverity(current.wind_kph || 0));
+
+  return {
+    port:           port.name,
+    lat:            port.lat,
+    lon:            port.lon,
+    weatherCode:    current.condition?.code || 0,
+    condition:      current.condition?.text || 'Unknown',
+    temperature:    current.temp_c,
+    windSpeed:      current.wind_kph,
+    precipitation:  current.precip_mm || 0,
+    severity:       Math.round(severity * 100) / 100,
+    source:         'weatherapi',
+    fetchedAt:      new Date(),
+  };
+}
+
+/**
+ * Robust fetch method with Open-Meteo fallback
+ */
 async function fetchPortWeather(port) {
+  const apiKey = process.env.WEATHER_API_KEY;
+  const useWeatherAPI = !!(apiKey && apiKey.trim() && apiKey !== 'your_key_here');
+
+  if (useWeatherAPI) {
+    try {
+      return await fetchWeatherFromAPI(port, apiKey);
+    } catch (err) {
+      console.warn(`⚠️ WeatherAPI.com failed for ${port.name}, falling back to Open-Meteo:`, err.message);
+    }
+  }
+
+  // Open-Meteo Fallback
   const params = new URLSearchParams({
     latitude:  port.lat,
     longitude: port.lon,
@@ -76,14 +138,14 @@ async function fetchPortWeather(port) {
     temperature:    c.temperature_2m,
     windSpeed:      c.wind_speed_10m,
     precipitation:  c.precipitation,
-    severity:       Math.round(severity * 100) / 100,  // 0.00 – 1.00
+    severity:       Math.round(severity * 100) / 100,
+    source:         'openmeteo',
     fetchedAt:      new Date(),
   };
 }
 
 /**
  * Fetch weather for all major ports and return the results.
- * No DB persistence needed for weather — it's always current.
  * Returns an array of port weather objects.
  */
 async function fetchAllPortWeather() {
